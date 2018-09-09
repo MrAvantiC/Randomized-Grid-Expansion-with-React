@@ -23,9 +23,22 @@ Grid.prototype.getColumnCount = function({ rowIndex }) {
 Grid.prototype.findElement = function(searchElement) {
   const { rowIndex } = searchElement
 
-  return this.grid[rowIndex]
-    ? this.grid[rowIndex].find(el => deepEqual(el, searchElement))
-    : undefined
+  if (!this.grid[rowIndex]) return undefined
+
+  const found = this.grid[rowIndex].find(el => {
+    const normalizedCurrentElement = {
+      rowIndex: el.rowIndex,
+      columnIndex: el.columnIndex,
+    }
+    const normalizedSearchElement = {
+      rowIndex: searchElement.rowIndex,
+      columnIndex: searchElement.columnIndex,
+    }
+
+    return deepEqual(normalizedCurrentElement, normalizedSearchElement)
+  })
+
+  return found
 }
 
 Grid.prototype.copyDeep = function() {

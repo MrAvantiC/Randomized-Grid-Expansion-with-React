@@ -64,6 +64,16 @@ describe('Grid', () => {
       const found = grid.findElement(searchElement)
       expect(found).toBeUndefined()
     })
+
+    it('depends only on rowIndex and columnIndex, no other properties', () => {
+      // modify the grid first
+      const searchElement = { rowIndex: 1, columnIndex: 1 }
+      const modified = grid.findElement(searchElement)
+      modified.status = 'arbitrary property'
+      // run the method again
+      const found = grid.findElement(searchElement)
+      expect(found).toEqual(modified)
+    })
   })
 
   describe('copyDeep', () => {
@@ -149,7 +159,7 @@ describe('Grid', () => {
       blueElement.status = 'blue'
 
       const statusGrid = grid.filter(el => el.status)
-      // // verify that elements without a status have been filtered out
+      // verify that elements without a status have been filtered out
       expect(statusGrid.findElement(redElement)).toBeDefined()
       expect(statusGrid.getColumnCount({ rowIndex: 0 })).toEqual(1)
       expect(statusGrid.findElement(blueElement)).toBeDefined()
