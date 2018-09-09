@@ -1,18 +1,30 @@
 import React, { Component, Fragment } from 'react'
+import { ChromePicker } from 'react-color'
 import DimensionInput from './DimensionInput'
 import GridContainer from './GridContainer'
 import GridElement from './GridElement'
 import Grid from '../dataStructures/grid'
+import delay from '../helpers/delay'
 
 class App extends Component {
   state = {
     nrOfRows: 10,
     nrOfColumns: 10,
     grid: new Grid(),
+    isPickerVisible: false,
+    pickerPosition: {},
   }
 
   componentDidMount() {
     this.generateGrid()
+    window.addEventListener('click', event => {
+      const { target } = event
+
+      // only close if we do not click inside the grid
+      if (target.nodeName !== 'SPAN') {
+        this.closeColorPicker()
+      }
+    })
   }
 
   changeGridDimension = event => {
@@ -54,14 +66,6 @@ class App extends Component {
       return candidates[Math.floor(Math.random() * candidates.length)]
     }
 
-    function delay(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms))
-    }
-
-    function nextFrame() {
-      return new Promise(resolve => requestAnimationFrame(() => resolve()))
-    }
-
     while (availableFields.length()) {
       let randomElement = availableFields.getRandomItem()
       let candidates = grid.getNeighbours(randomElement).filter(el => el.status)
@@ -82,10 +86,25 @@ class App extends Component {
     }
   }
 
-  handleTransitionEnd = () => {}
+  showColorPicker = ({ node }) => {
+    this.setState({
+      isPickerVisible: true,
+      pickerPosition: { x: node.offsetLeft, y: node.offsetTop },
+    })
+  }
+
+  closeColorPicker = () => {
+    this.setState({ isPickerVisible: false })
+  }
 
   render() {
-    const { nrOfColumns, nrOfRows, grid } = this.state
+    const {
+      nrOfColumns,
+      nrOfRows,
+      grid,
+      isPickerVisible,
+      pickerPosition,
+    } = this.state
 
     return (
       <Fragment>
@@ -118,8 +137,21 @@ class App extends Component {
               key={`[${element.rowIndex}][${element.columnIndex}]`}
               direction={element.direction}
               status={element.status}
+              showColorPicker={this.showColorPicker}
             />
           ))}
+
+          {isPickerVisible && (
+            <div
+              style={{
+                position: 'absolute',
+                top: pickerPosition.y + 22,
+                left: pickerPosition.x - 112.5,
+              }}
+            >
+              <ChromePicker />
+            </div>
+          )}
         </GridContainer>
       </Fragment>
     )

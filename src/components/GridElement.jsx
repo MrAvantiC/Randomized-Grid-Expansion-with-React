@@ -1,50 +1,30 @@
-import styled, { css, keyframes } from 'styled-components'
+import React, { Component, Fragment } from 'react'
+import styled, { css } from 'styled-components'
+import animationMap from '../helpers/gridElementAnimations'
 
-const toLeft = keyframes`
-  from {
-    transform: translateX(+22px);
-  }
-
-  to {
-    transform: translateX(0)
-  }
-`
-const toRight = keyframes`
-  from {
-    transform: translateX(-22px);
+class GridElement extends Component {
+  setNodeRef = element => {
+    this.nodeRef = element
   }
 
-  to {
-    transform: translateX(0)
-  }
-`
-const toTop = keyframes`
-  from {
-    transform: translateY(+22px);
+  handleClick = () => {
+    this.props.showColorPicker({ node: this.nodeRef })
   }
 
-  to {
-    transform: translateX(0)
-  }
-`
-const toBottom = keyframes`
-  from {
-    transform: translateY(-22px);
-  }
+  render() {
+    const { className } = this.props
 
-  to {
-    transform: translateX(0)
+    return (
+      <span
+        className={className}
+        ref={this.setNodeRef}
+        onClick={this.handleClick}
+      />
+    )
   }
-`
-
-const animationMap = {
-  toLeft: toLeft,
-  toRight: toRight,
-  toTop: toTop,
-  toBottom: toBottom,
 }
 
-const GridElement = styled.span`
+const StyledGridElement = styled(GridElement)`
   position: relative;
   background-color: white;
 
@@ -65,4 +45,4 @@ const GridElement = styled.span`
     `};
 `
 
-export default GridElement
+export default StyledGridElement
