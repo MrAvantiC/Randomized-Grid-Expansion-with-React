@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react'
-import { ChromePicker } from 'react-color'
+import { BlockPicker } from 'react-color'
 import DimensionInput from './DimensionInput'
 import GridContainer from './GridContainer'
 import GridElement from './GridElement'
@@ -13,6 +13,8 @@ class App extends Component {
     grid: new Grid(),
     isPickerVisible: false,
     pickerPosition: {},
+    currentSelectedElement: {},
+    currentSelectedColor: '',
   }
 
   componentDidMount() {
@@ -20,8 +22,8 @@ class App extends Component {
     window.addEventListener('click', event => {
       const { target } = event
 
-      // only close if we do not click inside the grid
-      if (target.nodeName !== 'SPAN') {
+      // quick solution for only closing if we do not click inside the grid
+      if (target.nodeName === 'HTML') {
         this.closeColorPicker()
       }
     })
@@ -86,15 +88,24 @@ class App extends Component {
     }
   }
 
-  showColorPicker = ({ node }) => {
+  showColorPicker = ({ node, element }) => {
     this.setState({
       isPickerVisible: true,
       pickerPosition: { x: node.offsetLeft, y: node.offsetTop },
+      currentSelectedElement: { ...element },
+      currentSelectedColor: element.status || '#000000',
     })
   }
 
   closeColorPicker = () => {
     this.setState({ isPickerVisible: false })
+  }
+
+  handleColorChange = color => {
+    const { grid, currentSelectedElement } = this.state
+
+    grid.findElement(currentSelectedElement).status = color.hex
+    this.setState({ grid, currentSelectedColor: color.hex })
   }
 
   render() {
@@ -104,6 +115,7 @@ class App extends Component {
       grid,
       isPickerVisible,
       pickerPosition,
+      currentSelectedColor,
     } = this.state
 
     return (
@@ -135,8 +147,9 @@ class App extends Component {
           {grid.flatten().map(element => (
             <GridElement
               key={`[${element.rowIndex}][${element.columnIndex}]`}
-              direction={element.direction}
+              element={element}
               status={element.status}
+              direction={element.direction}
               showColorPicker={this.showColorPicker}
             />
           ))}
@@ -145,11 +158,14 @@ class App extends Component {
             <div
               style={{
                 position: 'absolute',
-                top: pickerPosition.y + 22,
-                left: pickerPosition.x - 112.5,
+                top: pickerPosition.y + 27,
+                left: pickerPosition.x - 75,
               }}
             >
-              <ChromePicker />
+              <BlockPicker
+                color={currentSelectedColor}
+                onChangeComplete={this.handleColorChange}
+              />
             </div>
           )}
         </GridContainer>

@@ -8,7 +8,10 @@ class GridElement extends Component {
   }
 
   handleClick = () => {
-    this.props.showColorPicker({ node: this.nodeRef })
+    this.props.showColorPicker({
+      node: this.nodeRef,
+      element: this.props.element,
+    })
   }
 
   render() {
